@@ -287,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderKPIs();
       renderGraficoVentas();
       renderGraficoProductos();
-      renderTablaProductos();
     });
   }
 });
