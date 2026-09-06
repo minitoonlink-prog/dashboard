@@ -37,6 +37,23 @@ const data = productos.map(p => ({
   precio_mostrar: p.tipo_venta === "PESO" ? (p.precio_por_kilo ?? 0) : (p.precio ?? 0)
 }));
 
+const ventasRecientes = [
+  { id: 2001, cliente: "María González", productoId: 1, cantidad: 0.8, estado: "Entregado", fecha: "2026-09-09" },
+  { id: 2002, cliente: "Carlos Pérez", productoId: 20, cantidad: 0.5, estado: "En camino", fecha: "2026-09-09" },
+  { id: 2003, cliente: "Laura Rojas", productoId: 15, cantidad: 0.4, estado: "Pendiente", fecha: "2026-09-08" },
+  { id: 2004, cliente: "José Méndez", productoId: 4, cantidad: 1.1, estado: "Entregado", fecha: "2026-09-07" },
+  { id: 2005, cliente: "Diana León", productoId: 31, cantidad: 0.9, estado: "Entregado", fecha: "2026-09-06" },
+  { id: 2006, cliente: "Andrés Ruiz", productoId: 9, cantidad: 0.6, estado: "Pendiente", fecha: "2026-09-05" }
+].map(v => {
+  const producto = data.find(p => p.id === v.productoId);
+  const precioUnitario = Number(producto?.precio_mostrar) || 0;
+  return {
+    ...v,
+    producto: producto?.nombre ?? "Producto",
+    total: precioUnitario * (Number(v.cantidad) || 0)
+  };
+});
+
 function formatearMoneda(valor) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
@@ -51,39 +68,56 @@ function setText(selector, text) {
 }
 
 function renderKPIs() {
-  const totalProductos = data.length;
-  const stockTotal = data.reduce((acc, p) => acc + (Number(p.stock) || 0), 0);
-  const categoriasActivas = new Set(data.map(p => p.categoria)).size;
-  const precioPromedio = totalProductos > 0
-    ? data.reduce((acc, p) => acc + (Number(p.precio_mostrar) || 0), 0) / totalProductos
-    : 0;
+  const dateFilter = document.getElementById('dateFilter');
+  const fechaSeleccionada = dateFilter?.value || '';
 
-  setText('.kpi--ventas .kpi__label', 'Total productos');
-  setText('.kpi--pendientes .kpi__label', 'Stock total');
-  setText('.kpi--stock .kpi__label', 'Categorías activas');
-  setText('.kpi--entregados .kpi__label', 'Precio promedio');
+  const ventasDelDia = fechaSeleccionada
+    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
+    : ventasRecientes;
 
-  setText('#kpiVentas', totalProductos.toString());
-  setText('#kpiPendientes', stockTotal.toFixed(2));
-  setText('#kpiStock', categoriasActivas.toString());
-  setText('#kpiEntregados', formatearMoneda(precioPromedio));
+  const ventasTotales = ventasDelDia.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
+  const pendientes = ventasRecientes.filter(v => ["pendiente", "en camino"].includes(v.estado.toLowerCase())).length;
+  const stockBajo = data.filter(p => (Number(p.stock) || 0) < 10).length;
+  const entregados = fechaSeleccionada
+    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada && v.estado.toLowerCase() === "entregado").length
+    : ventasRecientes.filter(v => v.estado.toLowerCase() === "entregado").length;
+
+  setText('#kpiVentas', formatearMoneda(ventasTotales));
+  setText('#kpiPendientes', pendientes.toString());
+  setText('#kpiStock', stockBajo.toString());
+  setText('#kpiEntregados', entregados.toString());
 }
 
 function renderGraficoVentas() {
   const canvas = document.getElementById('ventasChart');
   if (!canvas) return;
 
-  const topStock = [...data]
-    .sort((a, b) => (Number(b.stock) || 0) - (Number(a.stock) || 0))
-    .slice(0, 7);
+  const dateFilter = document.getElementById('dateFilter');
+  const baseDate = dateFilter?.value ? new Date(`${dateFilter.value}T00:00:00`) : new Date();
+  const dias = [...Array(7)].map((_, i) => {
+    const fecha = new Date(baseDate);
+    fecha.setDate(baseDate.getDate() - (6 - i));
+    const yyyy = fecha.getFullYear();
+    const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dd = String(fecha.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  });
+
+  const ventasPorDia = dias.map(fecha =>
+    ventasRecientes
+      .filter(v => v.fecha === fecha)
+      .reduce((acc, v) => acc + (Number(v.total) || 0), 0)
+  );
 
   new Chart(canvas.getContext('2d'), {
     type: 'line',
     data: {
-      labels: topStock.map(p => p.nombre),
+      labels: dias.map(fecha =>
+        new Date(`${fecha}T00:00:00`).toLocaleDateString('es-CO', { weekday: 'short' })
+      ),
       datasets: [{
-        label: 'Stock',
-        data: topStock.map(p => Number(p.stock) || 0),
+        label: 'Ventas',
+        data: ventasPorDia,
         borderColor: '#4f46e5',
         backgroundColor: 'rgba(79, 70, 229, 0.1)',
         borderWidth: 2.5,
@@ -105,7 +139,7 @@ function renderGraficoVentas() {
           backgroundColor: '#0f172a',
           padding: 12,
           callbacks: {
-            label: (ctx) => `${ctx.parsed.y.toFixed(2)} kg`
+            label: (ctx) => formatearMoneda(ctx.parsed.y)
           }
         }
       },
@@ -128,17 +162,23 @@ function renderGraficoProductos() {
   const canvas = document.getElementById('productosChart');
   if (!canvas) return;
 
-  const topPrecio = [...data]
-    .sort((a, b) => (Number(b.precio_mostrar) || 0) - (Number(a.precio_mostrar) || 0))
+  const resumen = ventasRecientes.reduce((acc, venta) => {
+    if (!acc[venta.producto]) acc[venta.producto] = 0;
+    acc[venta.producto] += Number(venta.cantidad) || 0;
+    return acc;
+  }, {});
+
+  const topVendidos = Object.entries(resumen)
+    .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
   new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: topPrecio.map(p => p.nombre),
+      labels: topVendidos.map(([nombre]) => nombre),
       datasets: [{
-        label: 'Precio',
-        data: topPrecio.map(p => Number(p.precio_mostrar) || 0),
+        label: 'Kg vendidos',
+        data: topVendidos.map(([, cantidad]) => Number(cantidad.toFixed(2))),
         backgroundColor: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'],
         borderRadius: 6,
         borderSkipped: false
@@ -154,7 +194,7 @@ function renderGraficoProductos() {
           backgroundColor: '#0f172a',
           padding: 12,
           callbacks: {
-            label: (ctx) => formatearMoneda(ctx.parsed.x)
+            label: (ctx) => `${ctx.parsed.x} kg`
           }
         }
       },
@@ -173,54 +213,60 @@ function renderGraficoProductos() {
   });
 }
 
-function renderTablaProductos() {
-  setText('.table-section__title', 'Productos');
-
-  const headerRow = document.querySelector('.table thead tr');
-  if (headerRow) {
-    headerRow.innerHTML = `
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Categoría</th>
-      <th>Stock</th>
-      <th>Tipo venta</th>
-      <th>Precio</th>
-      <th>Precio mayor</th>
-    `;
-  }
-
+function renderTablaVentas() {
+  setText('.table-section__title', 'Pedidos recientes');
   const tbody = document.getElementById('pedidosBody');
   if (!tbody) return;
 
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7">No hay productos registrados</td></tr>';
+  if (ventasRecientes.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5">No hay ventas registradas</td></tr>';
     return;
   }
 
-  tbody.innerHTML = data.map(p => `
+  const dateFilter = document.getElementById('dateFilter');
+  const fechaSeleccionada = dateFilter?.value || '';
+  const filas = fechaSeleccionada
+    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
+    : ventasRecientes;
+
+  const badgeClassByEstado = {
+    pendiente: 'badge--pendiente',
+    'en camino': 'badge--camino',
+    entregado: 'badge--entregado',
+    cancelado: 'badge--cancelado'
+  };
+
+  tbody.innerHTML = filas.map(v => `
     <tr>
-      <td><strong>${p.id}</strong></td>
-      <td>${p.nombre}</td>
-      <td>${p.categoria}</td>
-      <td>${Number(p.stock).toFixed(2)}</td>
-      <td>${p.tipo_venta}</td>
-      <td>${formatearMoneda(p.precio_mostrar)}</td>
-      <td>${p.precio_al_mayor == null ? '—' : formatearMoneda(p.precio_al_mayor)}</td>
+      <td><strong>#${v.id}</strong></td>
+      <td>${v.cliente}</td>
+      <td>${v.producto} (${v.cantidad} kg)</td>
+      <td>${formatearMoneda(v.total)}</td>
+      <td><span class="badge ${badgeClassByEstado[v.estado.toLowerCase()] ?? 'badge--pendiente'}">${v.estado}</span></td>
     </tr>
   `).join('');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const dateFilter = document.getElementById('dateFilter');
+  const ultimaFecha = ventasRecientes
+    .map(v => v.fecha)
+    .sort()
+    .pop();
+
+  if (dateFilter && ultimaFecha) {
+    dateFilter.value = ultimaFecha;
+  }
+
   renderKPIs();
   renderGraficoVentas();
   renderGraficoProductos();
-  renderTablaProductos();
+  renderTablaVentas();
 
-  const dateFilter = document.getElementById('dateFilter');
   if (dateFilter) {
     dateFilter.addEventListener('change', () => {
       renderKPIs();
-      renderTablaProductos();
+      renderTablaVentas();
     });
   }
 });
