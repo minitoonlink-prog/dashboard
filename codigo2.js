@@ -49,6 +49,7 @@ const ventasRecientes = [
   const precioUnitario = Number(producto?.precio_mostrar) || 0;
   return {
     ...v,
+    catalogoProductoId: producto?.id ?? v.productoId ?? null,
     producto: producto?.nombre ?? "Producto",
     total: precioUnitario * (Number(v.cantidad) || 0)
   };
@@ -260,10 +261,10 @@ function renderTablaProductos() {
   const productosVendidos = new Set(
     ventasRecientes
       .filter(venta => normalizarFecha(venta.fecha) === fechaSeleccionada)
-      .map(venta => venta.producto)
+      .map(venta => venta.catalogoProductoId)
   );
   const productosFiltrados = fechaSeleccionada
-    ? data.filter(producto => productosVendidos.has(producto.nombre))
+    ? data.filter(producto => productosVendidos.has(producto.id))
     : data;
 
   if (productosFiltrados.length === 0) {
