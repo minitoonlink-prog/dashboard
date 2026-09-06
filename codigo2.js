@@ -54,6 +54,9 @@ const ventasRecientes = [
   };
 });
 
+let ventasChartInstance = null;
+let productosChartInstance = null;
+
 function formatearMoneda(valor) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
@@ -76,7 +79,7 @@ function renderKPIs() {
     : ventasRecientes;
 
   const ventasTotales = ventasDelDia.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
-  const pendientes = ventasRecientes.filter(v => ["pendiente", "en camino"].includes(v.estado.toLowerCase())).length;
+  const pendientes = ventasDelDia.filter(v => ["pendiente", "en camino"].includes(v.estado.toLowerCase())).length;
   const stockBajo = data.filter(p => (Number(p.stock) || 0) < 10).length;
   const entregados = fechaSeleccionada
     ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada && v.estado.toLowerCase() === "entregado").length
@@ -91,6 +94,10 @@ function renderKPIs() {
 function renderGraficoVentas() {
   const canvas = document.getElementById('ventasChart');
   if (!canvas) return;
+  if (ventasChartInstance) {
+    ventasChartInstance.destroy();
+    ventasChartInstance = null;
+  }
 
   const dateFilter = document.getElementById('dateFilter');
   const baseDate = dateFilter?.value ? new Date(`${dateFilter.value}T00:00:00`) : new Date();
@@ -109,7 +116,7 @@ function renderGraficoVentas() {
       .reduce((acc, v) => acc + (Number(v.total) || 0), 0)
   );
 
-  new Chart(canvas.getContext('2d'), {
+  ventasChartInstance = new Chart(canvas.getContext('2d'), {
     type: 'line',
     data: {
       labels: dias.map(fecha =>
@@ -161,8 +168,18 @@ function renderGraficoVentas() {
 function renderGraficoProductos() {
   const canvas = document.getElementById('productosChart');
   if (!canvas) return;
+  if (productosChartInstance) {
+    productosChartInstance.destroy();
+    productosChartInstance = null;
+  }
 
-  const resumen = ventasRecientes.reduce((acc, venta) => {
+  const dateFilter = document.getElementById('dateFilter');
+  const fechaSeleccionada = dateFilter?.value || '';
+  const ventasFiltradas = fechaSeleccionada
+    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
+    : ventasRecientes;
+
+  const resumen = ventasFiltradas.reduce((acc, venta) => {
     if (!acc[venta.producto]) acc[venta.producto] = 0;
     acc[venta.producto] += Number(venta.cantidad) || 0;
     return acc;
@@ -172,7 +189,7 @@ function renderGraficoProductos() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  new Chart(canvas.getContext('2d'), {
+  productosChartInstance = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: {
       labels: topVendidos.map(([nombre]) => nombre),
@@ -266,6 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (dateFilter) {
     dateFilter.addEventListener('change', () => {
       renderKPIs();
+      renderGraficoVentas();
+      renderGraficoProductos();
       renderTablaVentas();
     });
   }
