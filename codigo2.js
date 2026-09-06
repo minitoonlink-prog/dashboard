@@ -1,241 +1,226 @@
-/* ============================================================
-   DASHBOARD ADMIN - MI TIENDA LOCAL
-   ------------------------------------------------------------
-   Este archivo contiene:
-   1. Datos de ejemplo (placeholder)
-   2. Renderizado de KPIs
-   3. Gráficos con Chart.js
-   4. Renderizado de tabla de pedidos
+const productos = [
+  { id: 1, nombre: "Pierna", categoria: "Charcuteria", stock: 21.93, tipo_venta: "PESO", precio_por_kilo: 29000, precio_al_mayor: 24000 },
+  { id: 2, nombre: "Ahumado (Jamón)", categoria: "Charcuteria", stock: 15.00, tipo_venta: "PESO", precio_por_kilo: 31000, precio_al_mayor: 28000 },
+  { id: 3, nombre: "Pavo", categoria: "Charcuteria", stock: 5.00, tipo_venta: "PESO", precio_por_kilo: 29000, precio_al_mayor: 24000 },
+  { id: 4, nombre: "Espalda", categoria: "Charcuteria", stock: 41.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 21000 },
+  { id: 5, nombre: "Fiambre", categoria: "Charcuteria", stock: 9.85, tipo_venta: "PESO", precio_por_kilo: 24000, precio_al_mayor: 20000 },
+  { id: 6, nombre: "Ajo", categoria: "Charcuteria", stock: 25.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 7, nombre: "Picante", categoria: "Charcuteria", stock: 3.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 8, nombre: "Ahumado (Chorizo)", categoria: "Charcuteria", stock: 25.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 9, nombre: "Queso", categoria: "Charcuteria", stock: 21.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 10, nombre: "Argentino", categoria: "Charcuteria", stock: 25.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 11, nombre: "Jamón (Chorizo)", categoria: "Charcuteria", stock: 13.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 12, nombre: "chorizo(Pollo)", categoria: "Charcuteria", stock: 22.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 13, nombre: "Parrillero", categoria: "Charcuteria", stock: 56.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 24000 },
+  { id: 14, nombre: "Chuleta", categoria: "Charcuteria", stock: 53.00, tipo_venta: "PESO", precio_por_kilo: 26000, precio_al_mayor: 23000 },
+  { id: 15, nombre: "Tocineta", categoria: "Charcuteria", stock: 7.00, tipo_venta: "PESO", precio_por_kilo: 50000, precio_al_mayor: 40000 },
+  { id: 16, nombre: "Huesito", categoria: "Charcuteria", stock: 10.00, tipo_venta: "PESO", precio_por_kilo: 10000, precio_al_mayor: null },
+  { id: 17, nombre: "Costilla", categoria: "Charcuteria", stock: 14.00, tipo_venta: "PESO", precio_por_kilo: 25000, precio_al_mayor: null },
+  { id: 18, nombre: "Lomo", categoria: "Charcuteria", stock: 15.00, tipo_venta: "PESO", precio_por_kilo: 45000, precio_al_mayor: 40000 },
+  { id: 19, nombre: "Selva Negra (Tender)", categoria: "Charcuteria", stock: 14.00, tipo_venta: "PESO", precio_por_kilo: 45000, precio_al_mayor: 40000 },
+  { id: 20, nombre: "Mozarela", categoria: "Quesos", stock: 10.00, tipo_venta: "PESO", precio_por_kilo: 22000, precio_al_mayor: 47000 },
+  { id: 21, nombre: "Mozarela Amarillo", categoria: "Quesos", stock: 11.00, tipo_venta: "PESO", precio_por_kilo: 24000, precio_al_mayor: 48500 },
+  { id: 22, nombre: "Cheddar Amarillo", categoria: "Quesos", stock: 10.00, tipo_venta: "PESO", precio_por_kilo: 27000, precio_al_mayor: null },
+  { id: 23, nombre: "Pardito (Amarillo)", categoria: "Quesos", stock: 3.00, tipo_venta: "PESO", precio_por_kilo: 38000, precio_al_mayor: null },
+  { id: 24, nombre: "Gouda (Amarillo)", categoria: "Quesos", stock: 14.00, tipo_venta: "PESO", precio_por_kilo: 42000, precio_al_mayor: null },
+  { id: 25, nombre: "Americano / Muster", categoria: "Quesos", stock: 30.00, tipo_venta: "PESO", precio_por_kilo: 45000, precio_al_mayor: null },
+  { id: 26, nombre: "Edam", categoria: "Quesos", stock: 14.00, tipo_venta: "PESO", precio_por_kilo: 47000, precio_al_mayor: null },
+  { id: 27, nombre: "Tipo Paisa", categoria: "Quesos", stock: 15.00, tipo_venta: "PESO", precio_por_kilo: 25000, precio_al_mayor: null },
+  { id: 28, nombre: "Merideño", categoria: "Quesos", stock: 12.00, tipo_venta: "PESO", precio_por_kilo: 22000, precio_al_mayor: null },
+  { id: 29, nombre: "Merideño Duro", categoria: "Quesos", stock: 17.00, tipo_venta: "PESO", precio_por_kilo: 23000, precio_al_mayor: null },
+  { id: 30, nombre: "Muslos y alas", categoria: "Pollo", stock: 15.00, tipo_venta: "PESO", precio_por_kilo: 14300, precio_al_mayor: null },
+  { id: 31, nombre: "Pechuga", categoria: "Pollo", stock: 25.00, tipo_venta: "PESO", precio_por_kilo: 16300, precio_al_mayor: null }
+];
 
-   🔌 TODO: Reemplazar las funciones get*() por llamadas fetch()
-   a tu API real cuando tengas el backend listo.
-   ============================================================ */
+const data = productos.map(p => ({
+  ...p,
+  precio_mostrar: p.tipo_venta === "PESO" ? (p.precio_por_kilo ?? 0) : (p.precio ?? 0)
+}));
 
-// ============================================================
-// 1. DATOS DE EJEMPLO (placeholder)
-// ============================================================
-// 🔌 TODO: Reemplazar por fetch('/api/dashboard/kpis')
-function getKPIs() {
-    return {
-        ventasDia: 1245000,
-        pedidosPendientes: 8,
-        stockBajo: 5,
-        entregadosHoy: 23
-    };
-}
-
-// 🔌 TODO: Reemplazar por fetch('/api/dashboard/ventas-7dias')
-function getVentas7Dias() {
-    return {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        data: [850000, 1200000, 980000, 1450000, 1680000, 2100000, 1245000]
-    };
-}
-
-// 🔌 TODO: Reemplazar por fetch('/api/dashboard/top-productos')
-function getTopProductos() {
-    return {
-        labels: ['Pizza Margarita', 'Hamburguesa Clásica', 'Ensalada César', 'Gaseosa 1.5L', 'Papas Fritas'],
-        data: [42, 38, 27, 25, 22]
-    };
-}
-
-// 🔌 TODO: Reemplazar por fetch('/api/pedidos/recientes?limit=8')
-function getPedidosRecientes() {
-    return [
-        { id: '#1024', cliente: 'María González', producto: 'Pizza Margarita x2', total: 54000, estado: 'entregado' },
-        { id: '#1025', cliente: 'Carlos Pérez', producto: 'Hamburguesa Clásica', total: 28000, estado: 'camino' },
-        { id: '#1026', cliente: 'Ana Martínez', producto: 'Ensalada César + Gaseosa', total: 32000, estado: 'pendiente' },
-        { id: '#1027', cliente: 'Luis Rodríguez', producto: 'Combo Familiar', total: 89000, estado: 'camino' },
-        { id: '#1028', cliente: 'Sofía Ramírez', producto: 'Papas Fritas x3', total: 21000, estado: 'entregado' },
-        { id: '#1029', cliente: 'Diego Torres', producto: 'Pizza Pepperoni', total: 35000, estado: 'cancelado' },
-        { id: '#1030', cliente: 'Valeria López', producto: 'Hamburguesa Doble', total: 42000, estado: 'pendiente' },
-        { id: '#1031', cliente: 'Andrés Castro', producto: 'Ensalada + Pizza', total: 61000, estado: 'entregado' }
-    ];
-}
-
-// ============================================================
-// 2. UTILIDADES
-// ============================================================
 function formatearMoneda(valor) {
-    return new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
-        maximumFractionDigits: 0
-    }).format(valor);
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
+  }).format(valor);
 }
 
-// ============================================================
-// 3. RENDERIZAR KPIs
-// ============================================================
+function setText(selector, text) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = text;
+}
+
 function renderKPIs() {
-    const kpis = getKPIs();
-    document.getElementById('kpiVentas').textContent = formatearMoneda(kpis.ventasDia);
-    document.getElementById('kpiPendientes').textContent = kpis.pedidosPendientes;
-    document.getElementById('kpiStock').textContent = kpis.stockBajo;
-    document.getElementById('kpiEntregados').textContent = kpis.entregadosHoy;
+  const totalProductos = data.length;
+  const stockTotal = data.reduce((acc, p) => acc + (Number(p.stock) || 0), 0);
+  const categoriasActivas = new Set(data.map(p => p.categoria)).size;
+  const precioPromedio = totalProductos > 0
+    ? data.reduce((acc, p) => acc + (Number(p.precio_mostrar) || 0), 0) / totalProductos
+    : 0;
+
+  setText('.kpi--ventas .kpi__label', 'Total productos');
+  setText('.kpi--pendientes .kpi__label', 'Stock total');
+  setText('.kpi--stock .kpi__label', 'Categorías activas');
+  setText('.kpi--entregados .kpi__label', 'Precio promedio');
+
+  setText('#kpiVentas', totalProductos.toString());
+  setText('#kpiPendientes', stockTotal.toFixed(2));
+  setText('#kpiStock', categoriasActivas.toString());
+  setText('#kpiEntregados', formatearMoneda(precioPromedio));
 }
 
-// ============================================================
-// 4. GRÁFICO DE LÍNEA: VENTAS 7 DÍAS
-// ============================================================
 function renderGraficoVentas() {
-    const ctx = document.getElementById('ventasChart').getContext('2d');
-    const datos = getVentas7Dias();
+  const canvas = document.getElementById('ventasChart');
+  if (!canvas) return;
 
-    // 🔌 TODO: Los datos vendrán de getVentas7Dias() que llamará a tu API
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: datos.labels,
-            datasets: [{
-                label: 'Ventas',
-                data: datos.data,
-                borderColor: '#4f46e5',
-                backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                borderWidth: 2.5,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#4f46e5',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#0f172a',
-                    padding: 12,
-                    titleFont: { size: 13, weight: '600' },
-                    bodyFont: { size: 12 },
-                    callbacks: {
-                        label: (ctx) => formatearMoneda(ctx.parsed.y)
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#e2e8f0' },
-                    ticks: {
-                        color: '#64748b',
-                        callback: (v) => '$' + (v / 1000) + 'k'
-                    }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#64748b' }
-                }
-            }
+  const topStock = [...data]
+    .sort((a, b) => (Number(b.stock) || 0) - (Number(a.stock) || 0))
+    .slice(0, 7);
+
+  new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: topStock.map(p => p.nombre),
+      datasets: [{
+        label: 'Stock',
+        data: topStock.map(p => Number(p.stock) || 0),
+        borderColor: '#4f46e5',
+        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#4f46e5',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          padding: 12,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(2)} kg`
+          }
         }
-    });
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: '#e2e8f0' },
+          ticks: { color: '#64748b' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#64748b' }
+        }
+      }
+    }
+  });
 }
 
-// ============================================================
-// 5. GRÁFICO DE BARRAS: TOP 5 PRODUCTOS
-// ============================================================
 function renderGraficoProductos() {
-    const ctx = document.getElementById('productosChart').getContext('2d');
-    const datos = getTopProductos();
+  const canvas = document.getElementById('productosChart');
+  if (!canvas) return;
 
-    // 🔌 TODO: Los datos vendrán de getTopProductos() que llamará a tu API
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: datos.labels,
-            datasets: [{
-                label: 'Unidades vendidas',
-                data: datos.data,
-                backgroundColor: [
-                    '#4f46e5',
-                    '#6366f1',
-                    '#818cf8',
-                    '#a5b4fc',
-                    '#c7d2fe'
-                ],
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y', // Barras horizontales (mejor para nombres largos)
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#0f172a',
-                    padding: 12,
-                    callbacks: {
-                        label: (ctx) => `${ctx.parsed.x} unidades`
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    grid: { color: '#e2e8f0' },
-                    ticks: { color: '#64748b' }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: {
-                        color: '#0f172a',
-                        font: { size: 12, weight: '500' }
-                    }
-                }
-            }
+  const topPrecio = [...data]
+    .sort((a, b) => (Number(b.precio_mostrar) || 0) - (Number(a.precio_mostrar) || 0))
+    .slice(0, 5);
+
+  new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: topPrecio.map(p => p.nombre),
+      datasets: [{
+        label: 'Precio',
+        data: topPrecio.map(p => Number(p.precio_mostrar) || 0),
+        backgroundColor: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          padding: 12,
+          callbacks: {
+            label: (ctx) => formatearMoneda(ctx.parsed.x)
+          }
         }
-    });
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: '#e2e8f0' },
+          ticks: { color: '#64748b' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#0f172a', font: { size: 12, weight: '500' } }
+        }
+      }
+    }
+  });
 }
 
-// ============================================================
-// 6. TABLA DE PEDIDOS RECIENTES
-// ============================================================
-function renderTablaPedidos() {
-    const pedidos = getPedidosRecientes();
-    const tbody = document.getElementById('pedidosBody');
+function renderTablaProductos() {
+  setText('.table-section__title', 'Productos');
 
-    // 🔌 TODO: Los datos vendrán de getPedidosRecientes() que llamará a tu API
-    tbody.innerHTML = pedidos.map(p => `
-        <tr>
-            <td><strong>${p.id}</strong></td>
-            <td>${p.cliente}</td>
-            <td>${p.producto}</td>
-            <td>${formatearMoneda(p.total)}</td>
-            <td><span class="badge badge--${p.estado}">${formatearEstado(p.estado)}</span></td>
-        </tr>
-    `).join('');
+  const headerRow = document.querySelector('.table thead tr');
+  if (headerRow) {
+    headerRow.innerHTML = `
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Categoría</th>
+      <th>Stock</th>
+      <th>Tipo venta</th>
+      <th>Precio</th>
+      <th>Precio mayor</th>
+    `;
+  }
+
+  const tbody = document.getElementById('pedidosBody');
+  if (!tbody) return;
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7">No hay productos registrados</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><strong>${p.id}</strong></td>
+      <td>${p.nombre}</td>
+      <td>${p.categoria}</td>
+      <td>${Number(p.stock).toFixed(2)}</td>
+      <td>${p.tipo_venta}</td>
+      <td>${formatearMoneda(p.precio_mostrar)}</td>
+      <td>${p.precio_al_mayor == null ? '—' : formatearMoneda(p.precio_al_mayor)}</td>
+    </tr>
+  `).join('');
 }
 
-function formatearEstado(estado) {
-    const mapa = {
-        pendiente: 'Pendiente',
-        camino: 'En camino',
-        entregado: 'Entregado',
-        cancelado: 'Cancelado'
-    };
-    return mapa[estado] || estado;
-}
-
-// ============================================================
-// 7. INICIALIZACIÓN
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    renderKPIs();
-    renderGraficoVentas();
-    renderGraficoProductos();
-    renderTablaPedidos();
+  renderKPIs();
+  renderGraficoVentas();
+  renderGraficoProductos();
+  renderTablaProductos();
 
-    // 🔌 TODO: Conectar el filtro de fecha a tu API
-    document.getElementById('dateFilter').addEventListener('change', (e) => {
-        console.log('Filtrar por fecha:', e.target.value);
-        // Aquí llamarías a tu API con la fecha seleccionada
-        // y re-renderizarías los KPIs, gráficos y tabla
+  const dateFilter = document.getElementById('dateFilter');
+  if (dateFilter) {
+    dateFilter.addEventListener('change', () => {
+      renderKPIs();
+      renderTablaProductos();
     });
+  }
 });
