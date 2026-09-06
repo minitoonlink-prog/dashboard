@@ -250,12 +250,20 @@ function renderTablaProductos() {
   const tbody = document.getElementById('productosBody');
   if (!tbody) return;
 
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5">No hay productos registrados</td></tr>';
+  const dateFilter = document.getElementById('dateFilter');
+  const fechaSeleccionada = dateFilter?.value || '';
+  const productosFiltrados = fechaSeleccionada
+    ? data.filter(producto =>
+        ventasRecientes.some(venta => venta.fecha === fechaSeleccionada && venta.productoId === producto.id)
+      )
+    : data;
+
+  if (productosFiltrados.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5">${fechaSeleccionada ? 'No hay productos para la fecha seleccionada' : 'No hay productos registrados'}</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = data.map(producto => `
+  tbody.innerHTML = productosFiltrados.map(producto => `
     <tr>
       <td><strong>#${producto.id}</strong></td>
       <td>${producto.nombre}</td>
@@ -287,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderKPIs();
       renderGraficoVentas();
       renderGraficoProductos();
+      renderTablaProductos();
     });
   }
 });
