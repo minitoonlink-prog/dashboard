@@ -230,36 +230,38 @@ function renderGraficoProductos() {
   });
 }
 
-function renderTablaVentas() {
-  setText('.table-section__title', 'Pedidos recientes');
-  const tbody = document.getElementById('pedidosBody');
+function formatearStock(producto) {
+  const stock = Number(producto.stock) || 0;
+  return producto.tipo_venta === "PESO" ? `${stock.toFixed(2)} kg` : `${stock} und`;
+}
+
+function formatearPrecioBase(producto) {
+  const precio = producto.tipo_venta === "PESO"
+    ? Number(producto.precio_por_kilo) || 0
+    : Number(producto.precio) || 0;
+
+  return producto.tipo_venta === "PESO"
+    ? `${formatearMoneda(precio)} / kg`
+    : `${formatearMoneda(precio)} / und`;
+}
+
+function renderTablaProductos() {
+  setText('.table-section__title', 'Productos');
+  const tbody = document.getElementById('productosBody');
   if (!tbody) return;
 
-  if (ventasRecientes.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5">No hay ventas registradas</td></tr>';
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5">No hay productos registrados</td></tr>';
     return;
   }
 
-  const dateFilter = document.getElementById('dateFilter');
-  const fechaSeleccionada = dateFilter?.value || '';
-  const filas = fechaSeleccionada
-    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
-    : ventasRecientes;
-
-  const badgeClassByEstado = {
-    pendiente: 'badge--pendiente',
-    'en camino': 'badge--camino',
-    entregado: 'badge--entregado',
-    cancelado: 'badge--cancelado'
-  };
-
-  tbody.innerHTML = filas.map(v => `
+  tbody.innerHTML = data.map(producto => `
     <tr>
-      <td><strong>#${v.id}</strong></td>
-      <td>${v.cliente}</td>
-      <td>${v.producto} (${v.cantidad} kg)</td>
-      <td>${formatearMoneda(v.total)}</td>
-      <td><span class="badge ${badgeClassByEstado[v.estado.toLowerCase()] ?? 'badge--pendiente'}">${v.estado}</span></td>
+      <td><strong>#${producto.id}</strong></td>
+      <td>${producto.nombre}</td>
+      <td>${producto.categoria}</td>
+      <td>${formatearStock(producto)}</td>
+      <td>${formatearPrecioBase(producto)}</td>
     </tr>
   `).join('');
 }
@@ -278,14 +280,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderKPIs();
   renderGraficoVentas();
   renderGraficoProductos();
-  renderTablaVentas();
+  renderTablaProductos();
 
   if (dateFilter) {
     dateFilter.addEventListener('change', () => {
       renderKPIs();
       renderGraficoVentas();
       renderGraficoProductos();
-      renderTablaVentas();
+      renderTablaProductos();
     });
   }
 });
