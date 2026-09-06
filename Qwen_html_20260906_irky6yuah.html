@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Mi Tienda Local</title>
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js vía CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Estilos (ruta relativa) -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+        <div class="header__left">
+            <div class="logo">🛒</div>
+            <div>
+                <h1 class="header__title">Mi Tienda Local</h1>
+                <p class="header__subtitle">Panel de administración</p>
+            </div>
+        </div>
+        <div class="header__right">
+            <label for="dateFilter" class="header__label">Filtrar por fecha:</label>
+            <input type="date" id="dateFilter" class="header__date">
+        </div>
+    </header>
+
+    <!-- ============ CONTENIDO PRINCIPAL ============ -->
+    <main class="main">
+
+        <!-- KPIs -->
+        <section class="kpis">
+            <!-- KPI 1: Ventas del día -->
+            <article class="kpi kpi--ventas">
+                <div class="kpi__icon">💰</div>
+                <div class="kpi__content">
+                    <span class="kpi__label">Ventas del día</span>
+                    <span class="kpi__value" id="kpiVentas">$0</span>
+                    <span class="kpi__trend kpi__trend--up">↑ 12% vs ayer</span>
+                </div>
+            </article>
+
+            <!-- KPI 2: Pedidos pendientes -->
+            <article class="kpi kpi--pendientes">
+                <div class="kpi__icon">📦</div>
+                <div class="kpi__content">
+                    <span class="kpi__label">Pedidos pendientes</span>
+                    <span class="kpi__value" id="kpiPendientes">0</span>
+                    <span class="kpi__trend kpi__trend--neutral">Requieren atención</span>
+                </div>
+            </article>
+
+            <!-- KPI 3: Stock bajo -->
+            <article class="kpi kpi--stock">
+                <div class="kpi__icon">⚠️</div>
+                <div class="kpi__content">
+                    <span class="kpi__label">Productos stock bajo</span>
+                    <span class="kpi__value" id="kpiStock">0</span>
+                    <span class="kpi__trend kpi__trend--down">Reabastecer pronto</span>
+                </div>
+            </article>
+
+            <!-- KPI 4: Pedidos entregados -->
+            <article class="kpi kpi--entregados">
+                <div class="kpi__icon">✅</div>
+                <div class="kpi__content">
+                    <span class="kpi__label">Entregados hoy</span>
+                    <span class="kpi__value" id="kpiEntregados">0</span>
+                    <span class="kpi__trend kpi__trend--up">↑ 8% vs ayer</span>
+                </div>
+            </article>
+        </section>
+
+        <!-- Gráficos -->
+        <section class="charts">
+            <article class="chart-card">
+                <h2 class="chart-card__title">Ventas últimos 7 días</h2>
+                <div class="chart-card__body">
+                    <canvas id="ventasChart"></canvas>
+                </div>
+            </article>
+
+            <article class="chart-card">
+                <h2 class="chart-card__title">Top 5 productos más vendidos</h2>
+                <div class="chart-card__body">
+                    <canvas id="productosChart"></canvas>
+                </div>
+            </article>
+        </section>
+
+        <!-- Tabla de pedidos recientes -->
+        <section class="table-section">
+            <div class="table-section__header">
+                <h2 class="table-section__title">Pedidos recientes</h2>
+                <button class="btn btn--ghost">Ver todos</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Producto</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pedidosBody">
+                        <!-- Se llena dinámicamente desde JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 Mi Tienda Local · Dashboard administrativo</p>
+    </footer>
+
+    <!-- Script principal (ruta relativa) -->
+    <script src="js/main.js"></script>
+</body>
+</html>
