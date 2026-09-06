@@ -176,11 +176,18 @@ function renderGraficoProductos() {
 function renderTablaProductos() {
   setText('.table-section__title', 'Productos');
 
-  const headers = document.querySelectorAll('.table thead th');
-  const columnas = ['ID', 'Nombre', 'Categoría', 'Stock', 'Tipo venta', 'Precio', 'Precio mayor'];
-  columnas.forEach((texto, i) => {
-    if (headers[i]) headers[i].textContent = texto;
-  });
+  const headerRow = document.querySelector('.table thead tr');
+  if (headerRow) {
+    headerRow.innerHTML = `
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Categoría</th>
+      <th>Stock</th>
+      <th>Tipo venta</th>
+      <th>Precio</th>
+      <th>Precio mayor</th>
+    `;
+  }
 
   const tbody = document.getElementById('pedidosBody');
   if (!tbody) return;
