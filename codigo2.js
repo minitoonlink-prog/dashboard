@@ -49,6 +49,7 @@ const ventasRecientes = [
   const precioUnitario = Number(producto?.precio_mostrar) || 0;
   return {
     ...v,
+    catalogoProductoId: producto?.id ?? v.productoId ?? null,
     producto: producto?.nombre ?? "Producto",
     total: precioUnitario * (Number(v.cantidad) || 0)
   };
@@ -70,19 +71,23 @@ function setText(selector, text) {
   if (el) el.textContent = text;
 }
 
+function normalizarFecha(fecha) {
+  return String(fecha ?? '').slice(0, 10);
+}
+
 function renderKPIs() {
   const dateFilter = document.getElementById('dateFilter');
-  const fechaSeleccionada = dateFilter?.value || '';
+  const fechaSeleccionada = normalizarFecha(dateFilter?.value);
 
   const ventasDelDia = fechaSeleccionada
-    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
+    ? ventasRecientes.filter(v => normalizarFecha(v.fecha) === fechaSeleccionada)
     : ventasRecientes;
 
   const ventasTotales = ventasDelDia.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
   const pendientes = ventasDelDia.filter(v => ["pendiente", "en camino"].includes(v.estado.toLowerCase())).length;
   const stockBajo = data.filter(p => (Number(p.stock) || 0) < 10).length;
   const entregados = fechaSeleccionada
-    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada && v.estado.toLowerCase() === "entregado").length
+    ? ventasRecientes.filter(v => normalizarFecha(v.fecha) === fechaSeleccionada && v.estado.toLowerCase() === "entregado").length
     : ventasRecientes.filter(v => v.estado.toLowerCase() === "entregado").length;
 
   setText('#kpiVentas', formatearMoneda(ventasTotales));
@@ -100,7 +105,8 @@ function renderGraficoVentas() {
   }
 
   const dateFilter = document.getElementById('dateFilter');
-  const baseDate = dateFilter?.value ? new Date(`${dateFilter.value}T00:00:00`) : new Date();
+  const fechaSeleccionada = normalizarFecha(dateFilter?.value);
+  const baseDate = fechaSeleccionada ? new Date(`${fechaSeleccionada}T00:00:00`) : new Date();
   const dias = [...Array(7)].map((_, i) => {
     const fecha = new Date(baseDate);
     fecha.setDate(baseDate.getDate() - (6 - i));
@@ -112,7 +118,7 @@ function renderGraficoVentas() {
 
   const ventasPorDia = dias.map(fecha =>
     ventasRecientes
-      .filter(v => v.fecha === fecha)
+      .filter(v => normalizarFecha(v.fecha) === fecha)
       .reduce((acc, v) => acc + (Number(v.total) || 0), 0)
   );
 
@@ -174,9 +180,9 @@ function renderGraficoProductos() {
   }
 
   const dateFilter = document.getElementById('dateFilter');
-  const fechaSeleccionada = dateFilter?.value || '';
+  const fechaSeleccionada = normalizarFecha(dateFilter?.value);
   const ventasFiltradas = fechaSeleccionada
-    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
+    ? ventasRecientes.filter(v => normalizarFecha(v.fecha) === fechaSeleccionada)
     : ventasRecientes;
 
   const resumen = ventasFiltradas.reduce((acc, venta) => {
@@ -230,36 +236,49 @@ function renderGraficoProductos() {
   });
 }
 
-function renderTablaVentas() {
-  setText('.table-section__title', 'Pedidos recientes');
-  const tbody = document.getElementById('pedidosBody');
+function formatearStock(producto) {
+  const stock = Number(producto.stock) || 0;
+  return producto.tipo_venta === "PESO" ? `${stock.toFixed(2)} kg` : `${stock} und`;
+}
+
+function formatearPrecioBase(producto) {
+  const precio = producto.tipo_venta === "PESO"
+    ? Number(producto.precio_por_kilo) || 0
+    : Number(producto.precio) || 0;
+
+  return producto.tipo_venta === "PESO"
+    ? `${formatearMoneda(precio)} / kg`
+    : `${formatearMoneda(precio)} / und`;
+}
+
+function renderTablaProductos() {
+  setText('.table-section__title', 'Productos');
+  const tbody = document.getElementById('productosBody');
   if (!tbody) return;
 
-  if (ventasRecientes.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5">No hay ventas registradas</td></tr>';
+  const dateFilter = document.getElementById('dateFilter');
+  const fechaSeleccionada = normalizarFecha(dateFilter?.value);
+  const productosVendidos = new Set(
+    ventasRecientes
+      .filter(venta => normalizarFecha(venta.fecha) === fechaSeleccionada)
+      .map(venta => venta.catalogoProductoId)
+  );
+  const productosFiltrados = fechaSeleccionada
+    ? data.filter(producto => productosVendidos.has(producto.id))
+    : data;
+
+  if (productosFiltrados.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5">${fechaSeleccionada ? 'No hay productos para la fecha seleccionada' : 'No hay productos registrados'}</td></tr>`;
     return;
   }
 
-  const dateFilter = document.getElementById('dateFilter');
-  const fechaSeleccionada = dateFilter?.value || '';
-  const filas = fechaSeleccionada
-    ? ventasRecientes.filter(v => v.fecha === fechaSeleccionada)
-    : ventasRecientes;
-
-  const badgeClassByEstado = {
-    pendiente: 'badge--pendiente',
-    'en camino': 'badge--camino',
-    entregado: 'badge--entregado',
-    cancelado: 'badge--cancelado'
-  };
-
-  tbody.innerHTML = filas.map(v => `
+  tbody.innerHTML = productosFiltrados.map(producto => `
     <tr>
-      <td><strong>#${v.id}</strong></td>
-      <td>${v.cliente}</td>
-      <td>${v.producto} (${v.cantidad} kg)</td>
-      <td>${formatearMoneda(v.total)}</td>
-      <td><span class="badge ${badgeClassByEstado[v.estado.toLowerCase()] ?? 'badge--pendiente'}">${v.estado}</span></td>
+      <td><strong>#${producto.id}</strong></td>
+      <td>${producto.nombre}</td>
+      <td>${producto.categoria}</td>
+      <td>${formatearStock(producto)}</td>
+      <td>${formatearPrecioBase(producto)}</td>
     </tr>
   `).join('');
 }
@@ -267,7 +286,7 @@ function renderTablaVentas() {
 document.addEventListener('DOMContentLoaded', () => {
   const dateFilter = document.getElementById('dateFilter');
   const ultimaFecha = ventasRecientes
-    .map(v => v.fecha)
+    .map(v => normalizarFecha(v.fecha))
     .sort()
     .pop();
 
@@ -278,14 +297,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderKPIs();
   renderGraficoVentas();
   renderGraficoProductos();
-  renderTablaVentas();
+  renderTablaProductos();
 
   if (dateFilter) {
     dateFilter.addEventListener('change', () => {
       renderKPIs();
       renderGraficoVentas();
       renderGraficoProductos();
-      renderTablaVentas();
+      renderTablaProductos();
     });
   }
 });
