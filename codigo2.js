@@ -252,10 +252,13 @@ function renderTablaProductos() {
 
   const dateFilter = document.getElementById('dateFilter');
   const fechaSeleccionada = dateFilter?.value || '';
+  const productosVendidos = new Set(
+    ventasRecientes
+      .filter(venta => venta.fecha === fechaSeleccionada)
+      .map(venta => venta.producto)
+  );
   const productosFiltrados = fechaSeleccionada
-    ? data.filter(producto =>
-        ventasRecientes.some(venta => venta.fecha === fechaSeleccionada && venta.productoId === producto.id)
-      )
+    ? data.filter(producto => productosVendidos.has(producto.nombre))
     : data;
 
   if (productosFiltrados.length === 0) {
