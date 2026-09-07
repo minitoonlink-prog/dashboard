@@ -38,7 +38,7 @@ const data = productos.map(p => ({
 }));
 
 const ventasRecientes = [
-  { id: 2001, cliente: "María González", productoId: 1, cantidad: 0.8, estado: "Entregado", fecha: "2026-09-09" },
+  { id: 2001, cliente: "María González", productoId: 1, cantidad: 0.8, estado: "pendiente", fecha: "2026-09-09" },
   { id: 2002, cliente: "Carlos Pérez", productoId: 20, cantidad: 0.5, estado: "En camino", fecha: "2026-09-09" },
   { id: 2003, cliente: "Laura Rojas", productoId: 15, cantidad: 0.4, estado: "Pendiente", fecha: "2026-09-08" },
   { id: 2004, cliente: "José Méndez", productoId: 4, cantidad: 1.1, estado: "Entregado", fecha: "2026-09-07" },
