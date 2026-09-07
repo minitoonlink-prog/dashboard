@@ -4,128 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Mi Tienda Local</title>
-
-    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Chart.js vía CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- Estilos (ruta relativa) -->
     <link rel="stylesheet" href="codigo.css">
 </head>
 <body>
-
-    <!-- ============ HEADER ============ -->
-    <header class="header">
-        <div class="header__left">
-            <div class="logo">🛒</div>
-            <div>
-                <h1 class="header__title">Mi Tienda Local</h1>
-                <p class="header__subtitle">Panel de administración</p>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand__logo">ML</div>
+                <div>
+                    <p class="brand__name">Mi Tienda Local</p>
+                    <p class="brand__meta">Dashboard Pro</p>
+                </div>
             </div>
+
+            <label class="sidebar-search">
+                <span class="sidebar-search__icon">⌕</span>
+                <input type="text" value="Resumen ejecutivo" aria-label="Buscar sección" readonly>
+            </label>
+
+            <nav class="sidebar-nav">
+                <p class="sidebar-nav__label">General</p>
+                <a class="sidebar-link sidebar-link--active" href="#">Dashboard</a>
+                <a class="sidebar-link" href="#">Ventas</a>
+                <a class="sidebar-link" href="#">Inventario</a>
+                <a class="sidebar-link" href="#">Clientes</a>
+            </nav>
+
+            <nav class="sidebar-nav">
+                <p class="sidebar-nav__label">Operación</p>
+                <a class="sidebar-link" href="#">Pedidos</a>
+                <a class="sidebar-link" href="#">Productos</a>
+                <a class="sidebar-link" href="#">Reportes</a>
+                <a class="sidebar-link" href="#">Configuración</a>
+            </nav>
+
+            <div class="sidebar-card">
+                <span class="sidebar-card__eyebrow">Estado general</span>
+                <strong id="summaryTopProducto">Producto top</strong>
+                <p id="summaryTopCategoria">Categoría destacada</p>
+            </div>
+        </aside>
+
+        <div class="app-content">
+            <header class="topbar">
+                <div>
+                    <p class="topbar__eyebrow">Panel analítico</p>
+                    <h1 class="topbar__title">Bienvenido de vuelta, John</h1>
+                    <p class="topbar__subtitle">Supervisa ventas, inventario y pedidos con una vista más profesional.</p>
+                </div>
+
+                <div class="topbar__actions">
+                    <label class="filter-control" for="dateFilter">
+                        <span>Fecha</span>
+                        <input type="date" id="dateFilter" class="filter-control__input">
+                    </label>
+                    <button class="btn btn--secondary" type="button">Exportar datos</button>
+                    <button class="btn btn--primary" type="button">Crear reporte</button>
+                </div>
+            </header>
+
+            <main class="dashboard">
+                <section class="hero-panel">
+                    <div>
+                        <span class="hero-panel__badge">Resumen ejecutivo</span>
+                        <h2>Controla el rendimiento comercial desde una sola vista.</h2>
+                        <p>Identifica ingresos, productos con rotación y alertas críticas sin perder contexto operativo.</p>
+                    </div>
+
+                    <div class="hero-stats">
+                        <article class="hero-stat">
+                            <span class="hero-stat__label">Ingresos del periodo</span>
+                            <strong id="summaryIngreso">$0</strong>
+                        </article>
+                        <article class="hero-stat">
+                            <span class="hero-stat__label">Ticket promedio</span>
+                            <strong id="summaryTicket">$0</strong>
+                        </article>
+                        <article class="hero-stat">
+                            <span class="hero-stat__label">Fecha analizada</span>
+                            <strong id="summaryFecha">Hoy</strong>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="metrics">
+                    <article class="metric-card metric-card--accent">
+                        <div class="metric-card__icon">↗</div>
+                        <div>
+                            <span class="metric-card__label">Ventas del día</span>
+                            <strong class="metric-card__value" id="kpiVentas">$0</strong>
+                            <span class="metric-card__trend metric-card__trend--up">Flujo saludable</span>
+                        </div>
+                    </article>
+
+                    <article class="metric-card">
+                        <div class="metric-card__icon">◎</div>
+                        <div>
+                            <span class="metric-card__label">Pedidos activos</span>
+                            <strong class="metric-card__value" id="kpiPendientes">0</strong>
+                            <span class="metric-card__trend">En preparación y ruta</span>
+                        </div>
+                    </article>
+
+                    <article class="metric-card">
+                        <div class="metric-card__icon">!</div>
+                        <div>
+                            <span class="metric-card__label">Stock crítico</span>
+                            <strong class="metric-card__value" id="kpiStock">0</strong>
+                            <span class="metric-card__trend metric-card__trend--down">Requiere reposición</span>
+                        </div>
+                    </article>
+
+                    <article class="metric-card">
+                        <div class="metric-card__icon">✓</div>
+                        <div>
+                            <span class="metric-card__label">Pedidos entregados</span>
+                            <strong class="metric-card__value" id="kpiEntregados">0</strong>
+                            <span class="metric-card__trend metric-card__trend--up">Operación estable</span>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="analytics-grid">
+                    <article class="panel panel--chart">
+                        <div class="panel__header">
+                            <div>
+                                <span class="panel__eyebrow">Rendimiento comercial</span>
+                                <h2 class="panel__title">Ventas de los últimos 7 días</h2>
+                            </div>
+                            <div class="panel__meta">
+                                <span class="legend legend--primary">Ingresos</span>
+                                <span class="legend legend--secondary">Pedidos</span>
+                            </div>
+                        </div>
+                        <div class="panel__body panel__body--chart">
+                            <canvas id="ventasChart"></canvas>
+                        </div>
+                    </article>
+
+                    <div class="side-stack">
+                        <article class="panel">
+                            <div class="panel__header">
+                                <div>
+                                    <span class="panel__eyebrow">Rotación</span>
+                                    <h2 class="panel__title">Top productos</h2>
+                                </div>
+                            </div>
+                            <div class="panel__body panel__body--small-chart">
+                                <canvas id="productosChart"></canvas>
+                            </div>
+                        </article>
+
+                        <article class="panel">
+                            <div class="panel__header">
+                                <div>
+                                    <span class="panel__eyebrow">Actividad reciente</span>
+                                    <h2 class="panel__title">Últimos movimientos</h2>
+                                </div>
+                            </div>
+                            <div class="activity-list" id="activityList"></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel inventory-panel">
+                    <div class="panel__header">
+                        <div>
+                            <span class="panel__eyebrow">Inventario</span>
+                            <h2 class="panel__title table-section__title">Productos</h2>
+                        </div>
+                        <button class="btn btn--secondary" type="button">Ver inventario</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Precio base</th>
+                                    <th>Mayorista</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productosBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
         </div>
-        <div class="header__right">
-            <label for="dateFilter" class="header__label">Filtrar por fecha:</label>
-            <input type="date" id="dateFilter" class="header__date">
-        </div>
-    </header>
+    </div>
 
-    <!-- ============ CONTENIDO PRINCIPAL ============ -->
-    <main class="main">
-
-        <!-- KPIs -->
-        <section class="kpis">
-            <!-- KPI 1: Ventas del día -->
-            <article class="kpi kpi--ventas">
-                <div class="kpi__icon">💰</div>
-                <div class="kpi__content">
-                    <span class="kpi__label">Ventas del día</span>
-                    <span class="kpi__value" id="kpiVentas">$0</span>
-                    <span class="kpi__trend kpi__trend--up">↑ 12% vs ayer</span>
-                </div>
-            </article>
-
-            <!-- KPI 2: Pedidos pendientes -->
-            <article class="kpi kpi--pendientes">
-                <div class="kpi__icon">📦</div>
-                <div class="kpi__content">
-                    <span class="kpi__label">Pedidos pendientes</span>
-                    <span class="kpi__value" id="kpiPendientes">0</span>
-                    <span class="kpi__trend kpi__trend--neutral">Requieren atención</span>
-                </div>
-            </article>
-
-            <!-- KPI 3: Stock bajo -->
-            <article class="kpi kpi--stock">
-                <div class="kpi__icon">⚠️</div>
-                <div class="kpi__content">
-                    <span class="kpi__label">Productos stock bajo</span>
-                    <span class="kpi__value" id="kpiStock">0</span>
-                    <span class="kpi__trend kpi__trend--down">Reabastecer pronto</span>
-                </div>
-            </article>
-
-            <!-- KPI 4: Pedidos entregados -->
-            <article class="kpi kpi--entregados">
-                <div class="kpi__icon">✅</div>
-                <div class="kpi__content">
-                    <span class="kpi__label">Entregados hoy</span>
-                    <span class="kpi__value" id="kpiEntregados">0</span>
-                    <span class="kpi__trend kpi__trend--up">↑ 8% vs ayer</span>
-                </div>
-            </article>
-        </section>
-
-        <!-- Gráficos -->
-        <section class="charts">
-            <article class="chart-card">
-                <h2 class="chart-card__title">Ventas últimos 7 días</h2>
-                <div class="chart-card__body">
-                    <canvas id="ventasChart"></canvas>
-                </div>
-            </article>
-
-            <article class="chart-card">
-                <h2 class="chart-card__title">Top 5 productos más vendidos</h2>
-                <div class="chart-card__body">
-                    <canvas id="productosChart"></canvas>
-                </div>
-            </article>
-        </section>
-
-        <!-- Tabla de productos -->
-        <section class="table-section">
-            <div class="table-section__header">
-                <h2 class="table-section__title">Productos</h2>
-                <button class="btn btn--ghost">Ver inventario</button>
-            </div>
-            <div class="table-wrapper">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Producto</th>
-                            <th>Categoría</th>
-                            <th>Stock</th>
-                            <th>Precio base</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productosBody">
-                        <!-- Se llena dinámicamente desde JS -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <p>© 2025 Mi Tienda Local · Dashboard administrativo</p>
-    </footer>
-
-    <!-- Script principal (ruta relativa) -->
     <script src="codigo2.js"></script>
 </body>
 </html>
